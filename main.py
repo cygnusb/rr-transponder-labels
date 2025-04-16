@@ -16,8 +16,6 @@ def render(c: canvas.Canvas, width: float, height: float, count: int, chips: dic
 
 	position_helper = False
 
-	count = count + 1
-
 	if count in chips:
 		chip_id = chips[count]
 	else:
@@ -45,19 +43,27 @@ def render(c: canvas.Canvas, width: float, height: float, count: int, chips: dic
 
 def main():
 	argp = argparse.ArgumentParser(description="Print chip labels")
+	argp.add_argument("-l", "--lax", action='store_true', help="Lax mode")
 	argp.add_argument("-n", "--number", type=int, help="Number of labels to print", default=189)
 	argp.add_argument("-o", "--offset", type=int, help="Offset for labels", default=0)
 	argp.add_argument("-p", "--placement", type=int, help="Placement offset of labels", default=0)
 	argp.add_argument("-f", "--filename", type=str, help="Output filename", default="chiplabels.pdf")
 	# add chipfile
-	argp.add_argument("-c", "--chipfile", type=str, help="Chip file")
+	argp.add_argument("-c", "--chipfile", type=str, help="Chip file", default=None)
+	argp.add_argument("--delimiter", type=str, help="Delimiter for chip file", default=";")
 	args = argp.parse_args()
 
 	# open csv chipfile and read all entries race_number;chip_id to a dictionary
 
-	with open(args.chipfile, mode='r') as file:
-		reader = csv.reader(file, delimiter=';')
-		chips = {int(rows[1]): rows[0] for rows in reader}
+	if args.lax is False and args.chipfile is None:
+		print("Error: Chip file is required in strict mode.")
+
+	if args.chipfile is None:
+		chips = {}
+	else:
+		with open(args.chipfile, mode='r') as file:
+			reader = csv.reader(file, delimiter=args.delimiter)
+			chips = {int(rows[1]): rows[0] for rows in reader}
 
 	label = AveryLabels.AveryLabel(4731)
 
@@ -65,9 +71,14 @@ def main():
 
 	placement = args.placement
 
-	for i in range(args.offset, args.offset + args.number):
-		label.render(lambda c, w, h: render(c, w, h, i, chips), count=1, offset=placement)
-		placement = 0
+	if args.lax is False:
+		for i in chips:
+			label.render(lambda c, w, h: render(c, w, h, i, chips), count=1, offset=placement)
+			placement = 0
+	else:
+		for i in range(args.offset + 1, args.offset + args.number + 1):
+			label.render(lambda c, w, h: render(c, w, h, i, chips), count=1, offset=placement)
+			placement = 0
 	label.close()
 
 

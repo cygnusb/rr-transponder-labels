@@ -22,9 +22,25 @@ You can give the following options to the script:
  * -o - Offset for label race numbers (Default starting at 1)
  * -p - Placement offset leaving specified number of labels free (Default 0), allows for reuse of one sheet if you have less than 189 labels to print
  * -f - Output filename (Default chiplabels.pdf)
- * -c - RaceResult CSV Chipfile containing race number and Chip ID seperated by ; (no default, mandatory)
+ * -c - RaceResult CSV Chipfile containing Chip ID and Bib seperated by delimiter
+ * --delimiter - RaceResult CSV Chipfile delimiter (default ;)
+ * -e - Exclusive mode - only output labels for transponders that are present in chipfile
 
-Race numbers not present in Chipfile will only have the number printd
+There are multiple ways to run the script:
+
+If you want to print only transponder ids and bibs present in the chipfile use:
+
+`python3 chiplabels.py -c chipfile.txt`
+
+You can simply print numbers (20 numbers starting from 101) on the labels (Bib) using lax mode, offset and numbers to print:
+
+`python3 chiplabels.py -n 20 -o 100 -l`
+
+You can add the transponder ID in text and QR code for bibs present in chipfile. The following will output 20 labels with the transponder ID in text and QR code. 
+For Bibs not present in the chipfile, only the Bib will be printed using lax mode:
+
+`python3 chiplabels.py -n 20 -c chipfile.txt -l`
+
 
 # Credits
 
