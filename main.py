@@ -57,7 +57,7 @@ def main():
 
 	with open(args.chipfile, mode='r') as file:
 		reader = csv.reader(file, delimiter=';')
-		chips = {int(rows[0]): rows[1] for rows in reader}
+		chips = {int(rows[1]): rows[0] for rows in reader}
 
 	label = AveryLabels.AveryLabel(4731)
 
